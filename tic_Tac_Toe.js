@@ -1,13 +1,12 @@
-const player1Name = prompt("Enter player1's name: ");
-const player2Name = prompt("Enter player2's name: ");
-const header = "    A     B      C   ";
 const horizontalLine = " ━━━━━━╋━━━━━━╋━━━━━━";
-let row1 = "1      ┃      ┃      ";
-let row2 = "2      ┃      ┃      ";
-let row3 = "3      ┃      ┃      ";
+let row1 = "    1  ┃   4  ┃   7  ";
+let row2 = "    2  ┃   5  ┃   8  ";
+let row3 = "    3  ┃   6  ┃   9  ";
+let usedLocation = "";
 
-function addString(f1, f2, f3, f4, f5) {
-  return f1 + '\n' + f2 + '\n' + f3 + '\n' + f4 + '\n' + f3 + '\n' + f5 + '\n';
+function addString(row1, horizontalLine, row2, row3) {
+  return row1 + '\n' + horizontalLine + '\n' + row2 +
+   '\n' + horizontalLine + '\n' + row3 + '\n';
 }
 
 function replaceAt(string, char, position) {
@@ -20,126 +19,135 @@ function replaceAt(string, char, position) {
   return replaceString;
 }
 
-function updatedGrid(location, replacedRow) {
-  if (location === "a1" || location === "b1" || location === "c1") {
+function updateGrid(location, replacedRow) {
+  if (location === "1" || location === "4" || location === "7") {
     row1 = replacedRow;
   }
 
-  if (location === "a2" || location === "b2" || location === "c2") {
+  if (location === "2" || location === "5" || location === "8") {
     row2 = replacedRow;
   }
 
-  if (location === "a3" || location === "b3" || location === "c3") {
+  if (location === "3" || location === "6" || location === "9") {
     row3 = replacedRow;
   }
 
-  return addString(header, row1, horizontalLine, row2, row3);
+  return addString(row1, horizontalLine, row2, row3);
 }
 
 function placeSymbol(location, icon) {
   switch (location) {
-    case "a1":
+    case "1":
       return replaceAt(row1, icon, 4);
-    case "a2":
+    case "2":
       return replaceAt(row2, icon, 4);
-    case "a3":
+    case "3":
       return replaceAt(row3, icon, 4);
-    case "b1":
-      return replaceAt(row1, icon, 10);
-    case "b2":
-      return replaceAt(row2, icon, 10);
-    case "b3":
-      return replaceAt(row3, icon, 10);
-    case "c1":
-      return replaceAt(row1, icon, 17);
-    case "c2":
-      return replaceAt(row2, icon, 17);
-    case "c3":
-      return replaceAt(row3, icon, 17);
+    case "4":
+      return replaceAt(row1, icon, 11);
+    case "5":
+      return replaceAt(row2, icon, 11);
+    case "6":
+      return replaceAt(row3, icon, 11);
+    case "7":
+      return replaceAt(row1, icon, 18);
+    case "8":
+      return replaceAt(row2, icon, 18);
+    case "9":
+      return replaceAt(row3, icon, 18);
   }
 }
 
-function isRowMatched(row, getSymbol) {
-  if (row[4] === getSymbol && row[10] === getSymbol && row[17] === getSymbol) {
-    return true;
+function isRowMatched(icon, pos1, pos2, pos3) {
+  return row1[pos1] === icon && row1[pos2] === icon && row1[pos3] === icon;
+}
+
+function isColumnMatched(icon, pos) {
+  return row1[pos] === icon && row2[pos] === icon && row3[pos] === icon;
+}
+
+function isDiagonalMatched(icon, pos1, pos2, pos3) {
+  return row1[pos1] === icon && row2[pos2] === icon && row3[pos3] === icon;
+}
+
+function isRowHasSameSymbol(icon) {
+  return isRowMatched(icon, 4, 11, 18)
+    || isRowMatched(icon, 4, 11, 18)
+    || isRowMatched(icon, 4, 11, 18);
+}
+
+function isColumnHasSameSymbol(icon) {
+  return isColumnMatched(icon, 4)
+    || isColumnMatched(icon, 11)
+    || isColumnMatched(icon, 18);
+}
+
+function isDiagonalHasSameSymbol(icon) {
+  return isDiagonalMatched(icon, 4, 11, 18)
+    || isDiagonalMatched(icon, 18, 11, 4);
+}
+
+function didSomeOneWin(icon) {
+  return isDiagonalHasSameSymbol(icon)
+    || isColumnHasSameSymbol(icon)
+    || isRowHasSameSymbol(icon);
+}
+
+function isCharPresent(char) { 
+  for (let index = 0; index < usedLocation.length; index++) {
+    if (char === usedLocation[index]) {
+      return true;
+    }
   }
 
   return false;
 }
 
-function isColumnMatched(index, getSymbol) {
-  if (row1[index] === getSymbol && row2[index] === getSymbol && row3[index] === getSymbol) {
-    return true;
+function getValidInput(currentPlayer) {
+  const location = prompt(currentPlayer + " Enter your position:- ");
+  const doesInputExist = isCharPresent(location);
+
+  if (doesInputExist) {
+    return getValidInput(currentPlayer);
   }
 
-  return false;
+  usedLocation += location;
+  return location;
 }
 
-function isDiagonalMatched(index1, index2, index3, getSymbol) {
-  if (row1[index1] === getSymbol && row2[index2] === getSymbol && row3[index3] === getSymbol) {
-    return true;
-  }
-
-  return false;
+function display(message) {
+  console.log(message);
 }
 
-function isRowHasSameSymbol(symbol) {
-  return isRowMatched(row1, symbol) 
-         || isRowMatched(row2, symbol) 
-         || isRowMatched(row3, symbol);
-}
-
-function isColumnHasSameSymbol(symbol) {
-  return isColumnMatched(4, symbol) 
-         || isColumnMatched(10, symbol)
-         || isColumnMatched(17, symbol);
-}
-
-function isDiagonalHasSameSymbol(symbol) {
-  return isDiagonalMatched(4, 10, 17, symbol)
-         || isDiagonalMatched(17, 10, 4, symbol);
-}
-
-function whoWon(symbol) {
-  return isDiagonalHasSameSymbol(symbol)
-         || isColumnHasSameSymbol(symbol)
-         || isRowHasSameSymbol(symbol);
-}
-
-function userInput(selectPlayer) {
-  if (selectPlayer === "1") {
-    return prompt(player1Name + " enter your position:- ");
-  }
-
-  return prompt(player2Name + " enter your position:- ");
-}
-
-function gameLoop() {
-  console.log("\nsooooo letsssss go 😁😁 \n");
-  console.log(addString(header, row1, horizontalLine, row2, row3));
+function startGame(p1Name, p2Name) {
   let turn = 1;
   let isP1Turn = true;
-  let getSymbol = "";
 
   while (turn <= 9) {
-    const currentPlayerLocation = isP1Turn ? userInput("1") : userInput();
-    getSymbol = isP1Turn ? "O" : "X";
+    const icon = isP1Turn ? "O" : "⛌";
+    const currentPlayer = isP1Turn ? p1Name : p2Name;
+    const location = getValidInput(currentPlayer);
     console.clear();
-    const updatedRow = placeSymbol(currentPlayerLocation, getSymbol);
-    console.log(updatedGrid(currentPlayerLocation, updatedRow));
+    const updatedRow = placeSymbol(location, icon);
+    display(updateGrid(location, updatedRow));
 
-    if (whoWon(getSymbol)) {
-      console.log(player1Name + " is Winner 🤩🤩");
-      break;
+    if (didSomeOneWin(icon)) {
+      return currentPlayer + " is Winner 🤩🤩";
     }
 
     turn++;
     isP1Turn = !isP1Turn;
   }
 
-  if (!whoWon(getSymbol)) {
-    console.log("The Match is Draw 😕😕");
-  }
+  return "The Match is Draw 😕😕";
 }
 
-gameLoop();
+function startPlay() {
+  display("\nsooooo letsssss go 😁😁 \n");
+  const p1Name = prompt("Enter first player name: "); 
+  const p2Name = prompt("Enter second player name: ");
+  display(addString(row1, horizontalLine, row2, row3));
+  display(startGame(p1Name, p2Name));
+}
+
+startPlay();
